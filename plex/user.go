@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	accountInfoURL = "https://plex.tv/users/account"
+	accountInfoURL = "https://plex.tv/users/account.json"
 	authURL        = "https://plex.tv/users/sign_in.json"
 )
 
