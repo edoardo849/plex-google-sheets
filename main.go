@@ -19,7 +19,7 @@ func init() {
 }
 
 func main() {
-	user, err := plex.NewUser(plex.SetUsername("edoardo849@gmail.com"), plex.SetPassword("petergower849"))
+	user, err := plex.NewUser(plex.SetUsername("edoardo849@gmail.com"), plex.SetPassword("xxx"))
 
 	if err != nil {
 		e := errors.Wrap(err, "New user creation failed")
