@@ -13,3 +13,5 @@ Export your Plex library to a Google's cloud Spreadsheet.
 1. Click OK to dismiss the resulting dialog.
 Click the file_download (Download JSON) button to the right of the client ID.
 1. Move this file to your working directory and rename it client_secret.json
+
+Find the Plex Following [this tutorial](https://support.plex.tv/hc/en-us/articles/204059436-Finding-your-account-token-X-Plex-Token) 4P7iux2d7eCjx23Dp9zm
