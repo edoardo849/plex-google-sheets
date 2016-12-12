@@ -4,7 +4,7 @@ import (
 	"os"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/edoardo849/plex-gdocs/plex"
+	"github.com/edoardo849/plex-google-sheets/plex"
 	"github.com/pkg/errors"
 )
 
