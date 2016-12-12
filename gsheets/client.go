@@ -110,10 +110,11 @@ func NewService(configFile string) (*sheets.Service, error) {
 }
 
 // Test is a test
+// https://godoc.org/google.golang.org/api/sheets/v4
 func Test(srv *sheets.Service) {
 	// Prints the names and majors of students in a sample spreadsheet:
 	// https://docs.google.com/spreadsheets/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms/edit
-	spreadsheetID := "1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms"
+	spreadsheetID := "1_gLn3VkhOc129zwbRdQMpMjZpAGzFpgmnW0_5y8hVgY"
 	readRange := "Class Data!A2:E"
 	resp, err := srv.Spreadsheets.Values.Get(spreadsheetID, readRange).Do()
 	if err != nil {

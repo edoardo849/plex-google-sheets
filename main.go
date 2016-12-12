@@ -46,4 +46,10 @@ func main() {
 		log.Fatal(err)
 	}
 	gsheets.Test(srv)
+	// Now, spawn 2 goroutines, one that sends data from plex and one that receives data and sets into gsheets
+
+	// Prepare gsheets: open sheet
+	// Create sheets for movies and series (or do nothing if sheets already exists)
+	// Prepare data and send batchUpdate in batches of ~100 or more movies.
+
 }
