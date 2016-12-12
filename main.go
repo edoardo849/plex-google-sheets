@@ -19,21 +19,23 @@ func init() {
 }
 
 func main() {
-	user, err := plex.NewUser(plex.SetUsername("edoardo849@gmail.com"), plex.SetPassword("xxx"))
+
+	pwd := os.Getenv("PLEX_PASSWORD")
+	uname := os.Getenv("PLEX_USERNAME")
+	token := os.Getenv("PLEX_TOKEN")
+
+	login := plex.Login{
+		Username: uname,
+		Password: pwd,
+		Token:    token,
+	}
+
+	u, err := login.Do()
 
 	if err != nil {
 		e := errors.Wrap(err, "New user creation failed")
 		log.Fatal(e)
 	}
 
-	log.WithFields(log.Fields{
-
-		"ID":       user.ID,
-		"Email":    user.Email,
-		"Thumb":    user.Thumb,
-		"Title":    user.Title,
-		"Token":    user.Token,
-		"Username": user.Username,
-	}).Info("User")
-
+	log.Infof("User %s authenticated", u.Username)
 }

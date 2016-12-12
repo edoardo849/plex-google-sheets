@@ -1,0 +1,51 @@
+{
+	"user": {
+		"id": 1234,
+		"uuid": "sd9a87sd7asdas7sd",
+		"email": "john@galt.com",
+		"joined_at": "2015-10-31T22:28:20Z",
+		"username": "johngalt",
+		"title": "johngalt",
+		"thumb": "https://plex.tv/users/2cfef24126e982a7/avatar?c=1481403331",
+		"authToken": "dfsafdaf89da8fadfda",
+		"authentication_token": "dfsafdaf89da8fadfda",
+		"subscription": {
+			"active": true,
+			"status": "Active",
+			"plan": "yearly",
+			"features": [
+				"sync",
+				"home",
+				"camera_upload",
+				"content_filter",
+				"session_bandwidth_restrictions",
+				"pass",
+				"cloudsync",
+				"premium_music_metadata",
+				"lyrics",
+				"music_videos",
+				"trailers",
+				"dvr",
+				"photo_autotags"
+			]
+		},
+		"roles": {
+			"roles": [
+				"plexpass"
+			]
+		},
+		"entitlements": [
+			"all",
+			"roku",
+			"android",
+			"xbox_one",
+			"xbox_360",
+			"windows",
+			"windows_phone",
+			"ios"
+		],
+		"confirmedAt": "2015-11-01T07:22:34Z",
+		"forumId": 0,
+		"rememberMe": false
+	}
+}

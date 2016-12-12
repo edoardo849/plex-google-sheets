@@ -2,6 +2,7 @@ package plex
 
 import (
 	"net/http"
+	"runtime"
 )
 
 var (
@@ -10,7 +11,7 @@ var (
 		"X-Plex-Version":           "0.0.1",
 		"X-Plex-Client-Identifier": "golang-plex",
 		"X-Plex-Platform":          "golang",
-		"X-Plex-Platform-Version":  "1.5", // TODO: Use go version
+		"X-Plex-Platform-Version":  runtime.Version(),
 		"X-Plex-Device":            "N/A",
 		"X-Plex-Device-Name":       "golang-plex",
 	}
