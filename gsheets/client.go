@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"os/user"
 	"path/filepath"
 
+	log "github.com/Sirupsen/logrus"
+	"github.com/pkg/errors"
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/google"
 	sheets "google.golang.org/api/sheets/v4"
@@ -131,4 +132,40 @@ func Test(srv *sheets.Service) {
 		fmt.Print("No data found.")
 	}
 
+}
+
+// TestWrite attempts to write values to a spreadsheet
+// Documentation here: https://developers.google.com/sheets/api/guides/value
+// and here https://developers.google.com/sheets/api/samples/writing
+// and here https://godoc.org/google.golang.org/api/sheets/v4
+func TestWrite(srv *sheets.Service) error {
+	spreadsheetID := "1_gLn3VkhOc129zwbRdQMpMjZpAGzFpgmnW0_5y8hVgY"
+	writeRange := "Class Data!A1:B"
+
+	data := []*sheets.ValueRange{
+		&sheets.ValueRange{
+			Range:          writeRange,
+			MajorDimension: "ROWS",
+			Values: [][]interface{}{
+				[]interface{}{"Name", "Position"},
+				[]interface{}{"Edo", "Dev"},
+			},
+		},
+	}
+
+	batchReq := sheets.BatchUpdateValuesRequest{
+		Data: data,
+		IncludeValuesInResponse: false,
+		ValueInputOption:        "USER_ENTERED",
+	}
+
+	resp, err := srv.Spreadsheets.Values.BatchUpdate(spreadsheetID, &batchReq).Do()
+
+	if err != nil {
+		return errors.Wrap(err, "Failed to batch updated the spreadsheet")
+	}
+
+	log.Infof("Batch update succeded with %d cells", resp.TotalUpdatedCells)
+
+	return nil
 }

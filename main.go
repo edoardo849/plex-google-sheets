@@ -45,7 +45,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	gsheets.Test(srv)
+	gsheets.TestWrite(srv)
 	// Now, spawn 2 goroutines, one that sends data from plex and one that receives data and sets into gsheets
 
 	// Prepare gsheets: open sheet
