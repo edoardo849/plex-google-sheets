@@ -52,63 +52,64 @@ type User struct {
 	Token    string `json:"authToken"`
 }
 
-// Do performs the authentication
-func (l Login) Do() (User, error) {
+// Do performs the authentication: if a cache login is found, it will load the user from that file
+func (l Login) Do() (*User, error) {
 	cacheFile, err := cache.FilePath(".credentials", url.QueryEscape("plex.tv-plex-google-sheets.json"))
 	if err != nil {
 		log.Fatalf("Unable to get path to cached credential file. %v", err)
 	}
 
-	tok, err := tokenFromFile(cacheFile)
+	u, err := userFromFile(cacheFile)
 	if err != nil {
 		log.Warn("Token not set: authenticating")
-		u, err := authenticate(&l)
+		u, err = authenticate(&l)
 
 		if err != nil {
 			log.Fatal("Failed to authenticate to the Plex service")
 		}
 
-		saveToken(cacheFile, l)
+		saveUser(cacheFile, u)
 		return u, nil
 	}
-	log.Debug("Token set: loading account details")
-	return loadAccountDetails(tok)
+
+	log.Debug("Loading account details")
+	return u, nil
 }
 
-func tokenFromFile(file string) (string, error) {
+func userFromFile(file string) (*User, error) {
+
 	f, err := cache.Open(file)
 
 	if err != nil {
-		return "", err
+		return nil, errors.Wrapf(err, "The cache file %s was not found", file)
 	}
-	l := &Login{}
-	err = json.NewDecoder(f).Decode(l)
+	u := &User{}
+	err = json.NewDecoder(f).Decode(u)
 	defer f.Close()
-
-	return l.Token, err
+	log.Debug("User loaded from cache")
+	return u, err
 
 }
 
 // saveToken uses a file path to create a file and store the
 // token in it.
-func saveToken(file string, l Login) {
+func saveUser(file string, u *User) {
 	log.Debugf("Saving credential file to: %s\n", file)
 	f, err := cache.OpenOrCreate(file)
 
 	if err != nil {
-		log.Fatalf("Unable to cache oauth token: %v", err)
+		log.Fatalf("Unable to cache user: %v", err)
 	}
 	defer f.Close()
-	json.NewEncoder(f).Encode(l)
+	json.NewEncoder(f).Encode(u)
 }
 
-func authenticate(l *Login) (User, error) {
-	u := User{}
+func authenticate(l *Login) (*User, error) {
 
 	req, err := http.NewRequest("POST", authURL, nil)
 
 	if err != nil {
-		return u, errors.Wrap(err, "POST request building failed")
+		return nil, errors.Wrap(err, "POST request building failed")
 	}
 
 	req.SetBasicAuth(l.Username, l.Password)
@@ -121,11 +122,11 @@ func authenticate(l *Login) (User, error) {
 
 	if err != nil {
 
-		return u, errors.Wrap(err, "API call failed")
+		return nil, errors.Wrap(err, "API call failed")
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return u, errors.Wrapf(errors.New(http.StatusText(resp.StatusCode)), "Unexpected status code %d from the API", resp.StatusCode)
+		return nil, errors.Wrapf(errors.New(http.StatusText(resp.StatusCode)), "Unexpected status code %d from the API", resp.StatusCode)
 	}
 
 	decoder := json.NewDecoder(io.ReadCloser(resp.Body))
@@ -133,9 +134,10 @@ func authenticate(l *Login) (User, error) {
 	err = decoder.Decode(&a)
 
 	if err != nil {
-		return u, errors.Wrap(err, "Failed to decode the response body")
+		return nil, errors.Wrap(err, "Failed to decode the response body")
 	}
-	u = a.User
+
+	u := a.User
 
 	l.Token = a.User.Token
 	log.WithFields(log.Fields{
@@ -144,7 +146,7 @@ func authenticate(l *Login) (User, error) {
 		"ID":    u.ID,
 	}).Info("User Details")
 
-	return u, nil
+	return &u, nil
 }
 
 func loadAccountDetails(token string) (User, error) {
