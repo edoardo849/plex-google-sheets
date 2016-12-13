@@ -20,6 +20,7 @@ func init() {
 
 }
 
+// TODO 2 binaries: one for setup and the other for executing everything
 func main() {
 	ctx := context.Background()
 

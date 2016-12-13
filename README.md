@@ -1,7 +1,7 @@
 Plex to Google Spreadsheet exporter
 ===
 
-Export your Plex library to a Google's cloud Spreadsheet.
+Export your Plex library to a Google's cloud Spreadsheet. DO NOT USE THIS... yet. This project is under heavy development at the moment.
 
 # Prerequisites
 
