@@ -41,7 +41,7 @@ func main() {
 
 	log.Infof("User %s authenticated", u.Username)
 
-	srv, err := gsheets.NewService(gConf)
+	srv, err := gsheets.NewService(gConf, gsheets.DefaultClientFactory)
 	if err != nil {
 		log.Fatal(err)
 	}
