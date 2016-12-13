@@ -5,6 +5,7 @@ import (
 	"runtime"
 )
 
+// Unofficial PLEX API documentation https://github.com/Arcanemagus/plex-api/wiki
 var (
 	plexHeaders = map[string]string{
 		"X-Plex-Product":           "golang-plex",

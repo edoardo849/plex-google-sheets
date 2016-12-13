@@ -2,6 +2,7 @@ package plex
 
 import (
 	log "github.com/Sirupsen/logrus"
+	"golang.org/x/crypto/ssh/terminal"
 
 	"encoding/json"
 	"fmt"
@@ -10,7 +11,6 @@ import (
 	"net/url"
 
 	"github.com/edoardo849/plex-google-sheets/cache"
-
 	"github.com/pkg/errors"
 )
 
@@ -62,6 +62,7 @@ func (l Login) Do() (*User, error) {
 	u, err := userFromFile(cacheFile)
 	if err != nil {
 		log.Warn("Token not set: authenticating")
+		promptLogin(&l)
 		u, err = authenticate(&l)
 
 		if err != nil {
@@ -74,6 +75,22 @@ func (l Login) Do() (*User, error) {
 
 	log.Debug("Loading account details")
 	return u, nil
+}
+
+func promptLogin(l *Login) {
+	fmt.Println("Enter Plex email: ")
+	var email string
+	if _, err := fmt.Scan(&email); err != nil {
+		log.Fatalf("Unable to read the email %v", err)
+	}
+	l.Username = email
+
+	fmt.Println("Enter Plex password: ")
+	pwd, err := terminal.ReadPassword(0)
+	if err != nil {
+		log.Fatalf("Couldn't parse the password %v", err)
+	}
+	l.Password = string(pwd)
 }
 
 func userFromFile(file string) (*User, error) {
@@ -149,27 +166,24 @@ func authenticate(l *Login) (*User, error) {
 	return &u, nil
 }
 
-func loadAccountDetails(token string) (User, error) {
-	u := User{}
+func loadAccountDetails(token string) (*User, error) {
 
 	req, err := http.NewRequest("GET", accountInfoURL, nil)
 
 	if err != nil {
-		return u, err
+		return nil, err
 	}
 
 	req.URL.RawQuery = fmt.Sprintf("X-Plex-Token=%s", token)
-
 	client := http.DefaultClient
-
 	resp, err := client.Do(req)
 
 	if err != nil {
-		return u, err
+		return nil, err
 	}
 
 	if resp.StatusCode != 200 {
-		return u, errors.New(http.StatusText(resp.StatusCode))
+		return nil, errors.New(http.StatusText(resp.StatusCode))
 	}
 
 	decoder := json.NewDecoder(io.ReadCloser(resp.Body))
@@ -177,8 +191,7 @@ func loadAccountDetails(token string) (User, error) {
 	err = decoder.Decode(&a)
 
 	if err != nil {
-		return u, err
-
+		return nil, err
 	}
-	return a.User, nil
+	return &a.User, nil
 }

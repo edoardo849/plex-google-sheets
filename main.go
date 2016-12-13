@@ -22,16 +22,10 @@ func init() {
 
 func main() {
 	ctx := context.Background()
-	pwd := os.Getenv("PLEX_PASSWORD")
-	uname := os.Getenv("PLEX_USERNAME")
-	token := os.Getenv("PLEX_TOKEN")
+
 	gConf := os.Getenv("GSHEETS_CONF")
 
-	login := plex.Login{
-		Username: uname,
-		Password: pwd,
-		Token:    token,
-	}
+	login := plex.Login{}
 
 	u, err := login.Do()
 
