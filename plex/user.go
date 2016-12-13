@@ -54,7 +54,7 @@ type User struct {
 
 // Do performs the authentication
 func (l Login) Do() (User, error) {
-	cacheFile, err := cache.FilePath(".credentials", url.QueryEscape("plex.tv.json"))
+	cacheFile, err := cache.FilePath(".credentials", url.QueryEscape("plex.tv-plex-google-sheets.json"))
 	if err != nil {
 		log.Fatalf("Unable to get path to cached credential file. %v", err)
 	}
