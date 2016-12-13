@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"os"
 
 	log "github.com/Sirupsen/logrus"
@@ -20,7 +21,7 @@ func init() {
 }
 
 func main() {
-
+	ctx := context.Background()
 	pwd := os.Getenv("PLEX_PASSWORD")
 	uname := os.Getenv("PLEX_USERNAME")
 	token := os.Getenv("PLEX_TOKEN")
@@ -41,7 +42,7 @@ func main() {
 
 	log.Infof("User %s authenticated", u.Username)
 
-	srv, err := gsheets.NewService(gConf, gsheets.DefaultClientFactory)
+	srv, err := gsheets.NewService(ctx, gConf, gsheets.DefaultClientFactory)
 	if err != nil {
 		log.Fatal(err)
 	}

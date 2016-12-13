@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+
+	"github.com/edoardo849/plex-google-sheets/cache"
 
 	"github.com/pkg/errors"
 )
@@ -18,9 +21,9 @@ const (
 
 // Login is the information required to perform an authentication against the API
 type Login struct {
-	Username string
-	Password string
-	Token    string
+	Username string `json:"-"`
+	Password string `json:"-"`
+	Token    string `json:"authToken"`
 }
 
 type account struct {
@@ -51,16 +54,55 @@ type User struct {
 
 // Do performs the authentication
 func (l Login) Do() (User, error) {
+	cacheFile, err := cache.FilePath(".credentials", url.QueryEscape("plex.tv.json"))
+	if err != nil {
+		log.Fatalf("Unable to get path to cached credential file. %v", err)
+	}
 
-	if len(l.Token) == 0 {
-		log.Debug("Token not set: authenticating")
-		return authenticate(l.Username, l.Password)
+	tok, err := tokenFromFile(cacheFile)
+	if err != nil {
+		log.Warn("Token not set: authenticating")
+		u, err := authenticate(&l)
+
+		if err != nil {
+			log.Fatal("Failed to authenticate to the Plex service")
+		}
+
+		saveToken(cacheFile, l)
+		return u, nil
 	}
 	log.Debug("Token set: loading account details")
-	return loadAccountDetails(l.Token)
+	return loadAccountDetails(tok)
 }
 
-func authenticate(uname, pwd string) (User, error) {
+func tokenFromFile(file string) (string, error) {
+	f, err := cache.Open(file)
+
+	if err != nil {
+		return "", err
+	}
+	l := &Login{}
+	err = json.NewDecoder(f).Decode(l)
+	defer f.Close()
+
+	return l.Token, err
+
+}
+
+// saveToken uses a file path to create a file and store the
+// token in it.
+func saveToken(file string, l Login) {
+	log.Debugf("Saving credential file to: %s\n", file)
+	f, err := cache.OpenOrCreate(file)
+
+	if err != nil {
+		log.Fatalf("Unable to cache oauth token: %v", err)
+	}
+	defer f.Close()
+	json.NewEncoder(f).Encode(l)
+}
+
+func authenticate(l *Login) (User, error) {
 	u := User{}
 
 	req, err := http.NewRequest("POST", authURL, nil)
@@ -69,7 +111,7 @@ func authenticate(uname, pwd string) (User, error) {
 		return u, errors.Wrap(err, "POST request building failed")
 	}
 
-	req.SetBasicAuth(uname, pwd)
+	req.SetBasicAuth(l.Username, l.Password)
 
 	addPlexHeaders(req)
 
@@ -94,6 +136,8 @@ func authenticate(uname, pwd string) (User, error) {
 		return u, errors.Wrap(err, "Failed to decode the response body")
 	}
 	u = a.User
+
+	l.Token = a.User.Token
 	log.WithFields(log.Fields{
 		"email": u.Email,
 		"thumb": u.Thumb,
@@ -103,7 +147,6 @@ func authenticate(uname, pwd string) (User, error) {
 	return u, nil
 }
 
-// TODO find a usage for this.
 func loadAccountDetails(token string) (User, error) {
 	u := User{}
 

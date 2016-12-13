@@ -13,11 +13,10 @@ import (
 )
 
 // ClientFactory is the function that produces an HTTP client to be used with the Google API. Useful for testing and mocking
-type ClientFactory func(configFile string) *http.Client
+type ClientFactory func(ctx context.Context, configFile string) *http.Client
 
 // DefaultClientFactory is the function that includes the required authorization in each request to the Google API
-var DefaultClientFactory = func(configFile string) *http.Client {
-	ctx := context.Background()
+var DefaultClientFactory = func(ctx context.Context, configFile string) *http.Client {
 
 	b, err := ioutil.ReadFile(configFile)
 	if err != nil {
@@ -37,10 +36,8 @@ var DefaultClientFactory = func(configFile string) *http.Client {
 }
 
 // NewService performs an authentication against the Google Sheets API and returns a Sheet Service
-func NewService(configFile string, cf ClientFactory) (*sheets.Service, error) {
-
-	client := cf(configFile)
-
+func NewService(ctx context.Context, configFile string, cf ClientFactory) (*sheets.Service, error) {
+	client := cf(ctx, configFile)
 	return sheets.New(client)
 }
 
